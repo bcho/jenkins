@@ -1,12 +1,48 @@
 FROM java:8u45-jdk
 
-RUN apt-get update && apt-get install -y curl \
+RUN apt-get update && apt-get install -y autoconf \
+    bison \
+    build-essential \
+    curl \
     git \
+    libffi-dev \
+    libgdbm3 \
+    libgdbm-dev \
+    libncurses5-dev \
+    libreadline6-dev \
+    libssl-dev \
+    libyaml-dev \
     phpunit \
     wget \
-    zip
+    zip \
+    zlib1g-dev
 
 RUN rm -rf /var/lib/apt/lists/*
+
+# Install rbenv and ruby-build
+RUN git clone https://github.com/sstephenson/rbenv.git /root/.rbenv
+RUN git clone https://github.com/sstephenson/ruby-build.git /root/.rbenv/plugins/ruby-build
+# RUN ./root/.rbenv/plugins/ruby-build/install.sh
+ENV PATH /root/.rbenv/bin:$PATH
+RUN echo "export PATH=/root/.rbenv/bin:$PATH" >> /etc/profile.d/rbenv.sh
+RUN echo 'eval "$(rbenv init -)"' >> /etc/profile.d/rbenv.sh # or /etc/profile
+RUN echo 'eval "$(rbenv init -)"' >> ~/.bashrc
+
+# Install multiple versions of ruby
+ENV CONFIGURE_OPTS --disable-install-doc
+ADD ./.ruby-version /root/ruby-versions.txt
+RUN xargs -L 1 rbenv install < /root/ruby-versions.txt
+
+# Install Bundler for each version of ruby
+RUN echo 'gem: --no-rdoc --no-ri' >> ~/.gemrc
+
+RUN bash -l -c 'for v in $(cat /root/ruby-versions.txt); do rbenv global $v; done'
+
+RUN bash -l -c "gem sources -a https://ruby.taobao.org/"
+RUN bash -l -c "gem sources -r https://rubygems.org/"
+RUN bash -l -c "gem sources -r http://rubygems.org/"
+
+RUN bash -l -c 'gem install bundler'
 
 ENV JENKINS_HOME /var/jenkins_home
 
