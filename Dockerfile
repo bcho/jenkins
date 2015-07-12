@@ -1,6 +1,12 @@
 FROM java:8u45-jdk
 
-RUN apt-get update && apt-get install -y wget git curl zip && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y curl \
+    git \
+    phpunit \
+    wget \
+    zip
+
+RUN rm -rf /var/lib/apt/lists/*
 
 ENV JENKINS_HOME /var/jenkins_home
 
