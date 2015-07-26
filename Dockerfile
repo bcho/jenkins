@@ -44,6 +44,15 @@ RUN bash -l -c "gem sources -r http://rubygems.org/"
 
 RUN bash -l -c 'gem install bundler'
 
+# Install pyenv
+RUN git clone git://github.com/yyuu/pyenv.git .pyenv
+ENV PYENV_ROOT $HOME/.pyenv
+ENV PATH $PYENV_ROOT/shims:$PYENV_ROOT/bin:$PATH
+
+# Install multiple verions of python
+ADD ./.python-version /root/python-versions.txt
+RUN xargs -L 1 pyenv install < /root/python-versions.txt
+
 ENV JENKINS_HOME /var/jenkins_home
 
 # Jenkins is ran with user `jenkins`, uid = 1000
