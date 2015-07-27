@@ -52,6 +52,10 @@ ENV PATH $PYENV_ROOT/shims:$PYENV_ROOT/bin:$PATH
 # Install multiple verions of python
 ADD ./.python-version /root/python-versions.txt
 RUN xargs -L 1 pyenv install < /root/python-versions.txt
+RUN pyenv global 3.4.3
+
+# python tools, etc...
+RUN pip install tox
 
 ENV JENKINS_HOME /var/jenkins_home
 
